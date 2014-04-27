@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>run_analysis.R for UCI HAR Dataset analysis</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+
+
+</head>
+
+<body>
+<h1>run_analysis.R for UCI HAR Dataset analysis</h1>
+
+<p><strong>run_analysis.R</strong> assumes &ldquo;/UCI HAR Dataset/*&rdquo; folder is placed into working directory. UCI HAR Dataset has been obtained from <a href="http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones">http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones</a></p>
+
+<h3>Data Set Information:</h3>
+
+<p>The experiments have been carried out with a group of 30 volunteers within an age bracket of 19-48 years. Each person performed six activities (WALKING, WALKING_UPSTAIRS, WALKING_DOWNSTAIRS, SITTING, STANDING, LAYING) wearing a smartphone (Samsung Galaxy S II) on the waist. Using its embedded accelerometer and gyroscope, we captured 3-axial linear acceleration and 3-axial angular velocity at a constant rate of 50Hz. The experiments have been video-recorded to label the data manually. The obtained dataset has been randomly partitioned into two sets, where 70% of the volunteers was selected for generating the training data and 30% the test data. </p>
+
+<p><strong>run_analysis.R</strong> combines training and test dataset together producing one cobined dataset with 10299 rows by 82 columns. It appends subjectID, activityID, and activityName columns to the measurement dataset so that each measurement can be tracked per subjectID+activityName.
+It also extracts a limited set of variables that are of interest(mean and std). For description of variables please refer to features_info.txt and features.txt of UCI HAR Dataset folder.</p>
+
+<h3>Steps</h3>
+
+<p>1) Read testDataSet by combining X_test, Y_Test, and Subject_test files AND reduce the number of measurements by only selecting
+mean and std columns thereby producing </p>
+
+<pre><code>str(testDataSet)
+&#39;data.frame&#39;:  2947 obs. of  81 variables:
+ $ subjectID                      : Factor w/ 9 levels &quot;2&quot;,&quot;4&quot;,&quot;9&quot;,&quot;10&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ activityID                     : Factor w/ 6 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 5 5 5 5 5 5 5 5 5 5 ...
+ $ tBodyAcc.mean...X              : num  0.257 0.286 0.275 0.27 0.275 ...
+ $ tBodyAcc.mean...Y              : num  -0.0233 -0.0132 -0.0261 -0.0326 -0.0278 ...
+ $ tBodyAcc.mean...Z              : num  -0.0147 -0.1191 -0.1182 -0.1175 -0.1295 ...
+</code></pre>
+
+<p>2) Repeat Step1 for train subset to produce</p>
+
+<pre><code>&#39;data.frame&#39;:  7352 obs. of  81 variables:
+ $ subjectID                      : Factor w/ 21 levels &quot;1&quot;,&quot;3&quot;,&quot;5&quot;,&quot;6&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ activityID                     : Factor w/ 6 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 5 5 5 5 5 5 5 5 5 5 ...
+ $ tBodyAcc.mean...X              : num  0.289 0.278 0.28 0.279 0.277 ...
+ $ tBodyAcc.mean...Y              : num  -0.0203 -0.0164 -0.0195 -0.0262 -0.0166 ...
+</code></pre>
+
+<p>3) Combine train and test data AND append activityName</p>
+
+<p>4) Melt the dataset based on following ids</p>
+
+<pre><code>id_vars &lt;- c(&quot;subjectID&quot;,&quot;activityID&quot;,&quot;activityName&quot;)
+</code></pre>
+
+<p>5) Reconstruct dataframe from molten data and group by SubjectID and ActivityName</p>
+
+<pre><code>tidy_dataset &lt;- dcast(meltedSet, subjectID + activityName ~ variable, mean)
+</code></pre>
+
+<p>6) Save results into tidy.txt file</p>
+
+<h3>Output produced</h3>
+
+<p><strong>run_analysis.R</strong> produces a dataset of the following dimensions</p>
+
+<pre><code>str(tidy_dataset)
+&#39;data.frame&#39;:  180 obs. of  81 variables:
+  $ subjectID                      : Factor w/ 30 levels &quot;2&quot;,&quot;4&quot;,&quot;9&quot;,&quot;10&quot;,..: 1 1 1 1 1 1 2 2 2 2 ...
+  $ activityName                   : Factor w/ 6 levels &quot;LAYING&quot;,&quot;SITTING&quot;,..: 1 2 3 4 5 6 1 2 3 4 ...
+  $ tBodyAcc.mean...X              : num  0.281 0.277 0.278 0.276 0.278 ...
+</code></pre>
+
+<p>Please check <em>tidy.txt</em> file for data</p>
+
+</body>
+
+</html>
+
